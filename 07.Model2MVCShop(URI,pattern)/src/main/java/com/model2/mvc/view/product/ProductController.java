@@ -1,11 +1,18 @@
 package com.model2.mvc.view.product;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.DiskFileUpload;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,13 +49,68 @@ public class ProductController {
 
 //	@RequestMapping("/addProduct.do")
 	@RequestMapping(value = "addProduct", method = RequestMethod.POST)
-	public String addProduct(@ModelAttribute("product") Product product, Model model) throws Exception {
+	public String addProduct(@ModelAttribute("product") Product product, HttpServletRequest request, Model model)
+			throws Exception, IOException {
 
 		System.out.println("\n:: ==> addProduct().POST start......]");
+		if (FileUpload.isMultipartContent(request)) {
+			String temDir = "C:\\Users\\bitcamp\\git\\07.Model2MVCShop(URI,pattern)\\07.Model2MVCShop(URI,pattern)\\src\\main\\webapp\\images\\uploadFiles";
+			// String temDir2="/uploadFiles/";
+			DiskFileUpload fileUpload = new DiskFileUpload();
+			fileUpload.setRepositoryPath(temDir);
+			fileUpload.setSizeMax(1024 * 1024 * 10);
+			fileUpload.setSizeThreshold(1024 * 100);
+			if (request.getContentLength() < fileUpload.getSizeMax()) {
+				Product product2 = new Product();
 
-		productService.addProduct(product);
+				StringTokenizer token = null;
 
-		model.addAttribute("product", product);
+				List fileItemList = fileUpload.parseRequest(request);
+				int Size = fileItemList.size();
+				for (int i = 0; i < Size; i++) {
+					FileItem fileItem = (FileItem) fileItemList.get(i);
+					if (fileItem.isFormField()) {
+						if (fileItem.getFieldName().equals("manuDate")) {
+							token = new StringTokenizer(fileItem.getString("euc-kr"), "-");
+							String manuDate = token.nextToken() + token.nextToken() + token.nextToken();
+							product2.setManuDate(manuDate);
+						} else if (fileItem.getFieldName().equals("prodName"))
+							product.setProdName(fileItem.getString("euc-kr"));
+						else if (fileItem.getFieldName().equals("prodDetail"))
+							product.setProdDetail(fileItem.getString("euc-kr"));
+						else if (fileItem.getFieldName().equals("price"))
+							product.setPrice(Integer.parseInt(fileItem.getString("euc-kr")));
+					} else {
+
+						if (fileItem.getSize() > 0) {
+							int idx = fileItem.getName().lastIndexOf("\\");
+							if (idx == -1) {
+								idx = fileItem.getName().lastIndexOf("/");
+							}
+							String fileName = fileItem.getName().substring(idx + 1);
+							product2.setFileName(fileName);
+							try {
+								File uploadedFile = new File(temDir, fileName);
+								fileItem.write(uploadedFile);
+							} catch (IOException e) {
+								System.out.println(e);
+							}
+						}else {
+							product2.setFileName("../../images/empty.GIF");
+						}
+					}//else
+				}//for
+				productService.addProduct(product2);
+				
+				request.setAttribute("product", product2);
+			}else {
+				int overSize=(request.getContentLength()/1000000);
+				System.out.println("<script>alert(파일의 크기는 1MB까지 입니다. 올리신 파일 용량은"+overSize+"MB입니다.");
+				System.out.println("history.back();<script>");
+			}
+		}else {
+			System.out.println("인코딩 타입이 multipart/form-data가 아닙니다.");
+		}
 
 		System.out.println("[addProduct().POST end......]\n");
 
@@ -57,8 +119,7 @@ public class ProductController {
 
 	@RequestMapping(value = "getProduct/{prodNo}/{menu}", method = RequestMethod.GET)
 	public String getProduct(@ModelAttribute("product") Product product, @PathVariable String menu,
-			HttpServletRequest request, HttpServletResponse response, Model model)
-			throws Exception {
+			HttpServletRequest request, HttpServletResponse response, Model model) throws Exception {
 		System.out.println("\n:: ==> getProduct().GET start......]");
 		System.out.println("ProductController.getProduct.manu : " + menu);
 
