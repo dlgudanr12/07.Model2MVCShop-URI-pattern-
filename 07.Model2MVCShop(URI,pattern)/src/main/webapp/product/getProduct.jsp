@@ -17,7 +17,7 @@ Product productVO = (Product) request.getAttribute("productVO");
 
 <body bgcolor="#ffffff" text="#000000">
 
-	<form name="detailForm" method="post">
+	<form name="detailForm" method="post" enctype="multipart/form-data">
 
 		<table width="100%" height="37" border="0" cellpadding="0"
 			cellspacing="0">
@@ -79,7 +79,9 @@ Product productVO = (Product) request.getAttribute("productVO");
 					align="absmiddle" />
 				</td>
 				<td bgcolor="D6D6D6" width="1"></td>
-				<td class="ct_write01">${product.fileName }</td>
+				<td class="ct_write01"><img
+					src="C:/Users/bitcamp/git/07.Model2MVCShop(URI,pattern)/07.Model2MVCShop(URI,pattern)/src/main/webapp/images/uploadFiles/${product.fileName}" height="200"
+					align="absmiddle" /></td>
 			</tr>
 			<tr>
 				<td height="1" colspan="3" bgcolor="D6D6D6"></td>
@@ -122,8 +124,7 @@ Product productVO = (Product) request.getAttribute("productVO");
 			<tr>
 				<td width="104" class="ct_write">재고 수량</td>
 				<td bgcolor="D6D6D6" width="1"></td>
-				<td class="ct_write01">${product.prodQuantity}&nbsp;개
-				</td>
+				<td class="ct_write01">${product.prodQuantity}&nbsp;개</td>
 			</tr>
 			<tr>
 				<td height="1" colspan="3" bgcolor="D6D6D6"></td>
@@ -148,7 +149,7 @@ Product productVO = (Product) request.getAttribute("productVO");
 								<td width="14" height="23"><img
 									src="/images/ct_btnbg03.gif" width="14" height="23"></td>
 								<td width="30"></td>
-								
+
 								<td width="17" height="23"><img
 									src="/images/ct_btnbg01.gif" width="17" height="23" /></td>
 								<td background="/images/ct_btnbg02.gif" class="ct_btn01"

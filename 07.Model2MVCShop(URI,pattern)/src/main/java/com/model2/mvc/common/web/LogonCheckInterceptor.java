@@ -37,7 +37,6 @@ public class LogonCheckInterceptor extends HandlerInterceptorAdapter {
 
 		for (Cookie cookie : request.getCookies()) {
 			System.out.println("Interceptor.cookie : "+cookie.getValue());
-			response.addCookie(cookie);
 		}
 
 		// ==> 로그인 유무확인

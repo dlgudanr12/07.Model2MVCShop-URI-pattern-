@@ -2,6 +2,8 @@ package com.model2.mvc.service.product;
 
 import java.util.Map;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import com.model2.mvc.common.Search;
 import com.model2.mvc.service.domain.Product;
 
@@ -16,4 +18,6 @@ public interface ProductService {
 	public void updateProduct(Product product) throws Exception;
 
 	public void updateQuantity(Product product) throws Exception;
+
+	public String getFileName(String imagePath, MultipartFile imageFileName) throws Exception;
 }

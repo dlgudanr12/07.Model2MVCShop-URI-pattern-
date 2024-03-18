@@ -1,25 +1,17 @@
 package com.model2.mvc.view.product;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.DiskFileUpload;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +38,9 @@ public class ProductController {
 	@Value("#{commonProperties['pageSize'] ?: 2}")
 	int pageSize;
 
+	@Value(("#{commonProperties['imagePath'] ?: '\\uploadFiles\\'}"))
+	String imagePath;
+
 	public ProductController() {
 		System.out.println(":: ProductController default Contrctor call : " + this.getClass());
 	}
@@ -53,8 +48,7 @@ public class ProductController {
 //	@RequestMapping("/addProduct.do")
 	@RequestMapping(value = "addProduct", method = RequestMethod.POST)
 	public String addProduct(@ModelAttribute("product") Product product,
-			@RequestParam("imageFileName") MultipartFile imageFileName /* , HttpServletRequest request */, Model model)
-			throws Exception, IOException {
+			@RequestParam("imageFileName") MultipartFile imageFileName, Model model) throws Exception, IOException {
 
 //		System.out.println("\n:: ==> addProduct().POST start......]");
 //		if (FileUpload.isMultipartContent(request)) {
@@ -117,15 +111,10 @@ public class ProductController {
 //		}else {
 //			System.out.println("인코딩 타입이 multipart/form-data가 아닙니다.");
 //		}
-//		String temDir = "C:\\Users\\SWCOM\\git\\07.Model2MVCShop-URI-pattern-\\07.Model2MVCShop(URI,pattern)\\src\\main\\webapp\\images\\uploadFiles\\";
-		String temDir = "C:/Users/SWCOM/git/07.Model2MVCShop-URI-pattern-/07.Model2MVCShop(URI,pattern)/src/main/webapp/images/uploadFiles/";
-		String originFileName=imageFileName.getOriginalFilename();
-		UUID uuid=UUID.randomUUID();
-		String savedFileName=uuid.toString()+"_"+originFileName;
-		File newFile=new File(temDir+savedFileName);
-		imageFileName.transferTo(newFile);
-		
-		product.setFileName(originFileName);
+
+//		String imagePath = "C:\\Users\\bitcamp\\git\\07.Model2MVCShop(URI,pattern)\\07.Model2MVCShop(URI,pattern)\\src\\main\\webapp\\images\\uploadFiles\\";
+
+		product.setFileName(productService.getFileName(imagePath, imageFileName));
 
 		productService.addProduct(product);
 		model.addAttribute("product", product);
@@ -148,17 +137,22 @@ public class ProductController {
 		product = productService.getProduct(product.getProdNo());
 		model.addAttribute("product", product);
 
+//		for (Cookie cookie : request.getCookies()) {
+//			if (!cookie.getName().equals("history")) {
+//				cookie = new Cookie("history", "");
+//				cookie.setPath("/");
+//				response.addCookie(cookie);
+//			}
+//		}
+
+		history = product.getProdNo() + ":" + product.getProdName().replaceAll(" ", "_") + "/";
 		for (Cookie cookie : request.getCookies()) {
+			System.out.println(cookie.getName());
 			if (!cookie.getName().equals("history")) {
 				cookie = new Cookie("history", "");
 				cookie.setPath("/");
 				response.addCookie(cookie);
 			}
-		}
-
-		history = product.getProdNo() + ":" + product.getProdName().replaceAll(" ", "_") + "/";
-		for (Cookie cookie : request.getCookies()) {
-			System.out.println(cookie.getName());
 			if (cookie.getName().equals("history")) {
 				System.out.println("request.getCookies() : " + cookie.getValue());
 				cookieNewValue = cookie.getValue().replaceAll(history, "");
@@ -217,12 +211,16 @@ public class ProductController {
 	}
 
 	@RequestMapping(value = "updateProduct", method = RequestMethod.POST)
-	public String updateProduct(@ModelAttribute("product") Product product, Model model) throws Exception {
+	public String updateProduct(@ModelAttribute("product") Product product,
+			@RequestParam("imageFileName") MultipartFile imageFileName, Model model) throws Exception {
 
 		System.out.println("\n:: ==> updateProduct().POST start......]");
 
-		productService.updateProduct(product);
+//		String temDir = "C:\\Users\\bitcamp\\git\\07.Model2MVCShop(URI,pattern)\\07.Model2MVCShop(URI,pattern)\\src\\main\\webapp\\images\\uploadFiles\\";
+//		String temDir = "C:/Users/SWCOM/git/07.Model2MVCShop-URI-pattern-/07.Model2MVCShop(URI,pattern)/src/main/webapp/images/uploadFiles/";
+		product.setFileName(productService.getFileName(imagePath, imageFileName));
 
+		productService.updateProduct(product);
 		model.addAttribute("product", productService.getProduct(product.getProdNo()));
 
 		System.out.println("[updateProduct().POST end......]\n");
