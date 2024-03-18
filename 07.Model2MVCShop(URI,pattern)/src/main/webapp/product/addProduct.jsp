@@ -133,7 +133,7 @@ Product productVO = (Product) request.getAttribute("productVO");
 				<td width="104" class="ct_write">상품이미지</td>
 				<td bgcolor="D6D6D6" width="1"></td>
 				<td class="ct_write01"><img
-					src="C:/Users/bitcamp/git/07.Model2MVCShop(URI,pattern)/07.Model2MVCShop(URI,pattern)/src/main/webapp/images/uploadFiles/${product.fileName }" height="200"
+					src="/images/uploadFiles/${product.fileName }" height="200"
 					align="absmiddle" /></td>
 			</tr>
 			<tr>

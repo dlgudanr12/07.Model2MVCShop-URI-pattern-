@@ -69,7 +69,7 @@ public class ProductServiceImpl implements ProductService {
 		
 //		File newFile = new File(imagePath + originFileName);
 //		imageFileName.transferTo(newFile);
-		FileCopyUtils.copy(imageFileName.getInputStream(), new FileOutputStream(imagePath + originFileName+".jpg"));
+		FileCopyUtils.copy(imageFileName.getInputStream(), new FileOutputStream(imagePath + originFileName));
 		return originFileName;
 	}
 }
